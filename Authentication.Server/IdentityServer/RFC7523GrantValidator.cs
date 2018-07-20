@@ -56,7 +56,6 @@ namespace Authentication.Server.IdentityServer
             }
             var signingCredentials = await this.CreateSigningCredentialsAsync(userDeviceCredential);
             var claimsPrincipal = await this.ValidateAssertionAsync(parsedRequest, userDeviceCredential, signingCredentials);
-            //Validate User Info
 
             //Success
             context.Result = new GrantValidationResult(claimsPrincipal.GetSubjectId(), this.GrantType);
@@ -137,6 +136,11 @@ namespace Authentication.Server.IdentityServer
     internal class RFC7523AssertionValidator
     {
         private readonly UserDeviceCredential userDeviceCredential;
+
+        static RFC7523AssertionValidator()
+        {
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+        }
 
         internal RFC7523AssertionValidator(UserDeviceCredential userDeviceCredential)
         {

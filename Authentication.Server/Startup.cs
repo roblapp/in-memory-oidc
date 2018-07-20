@@ -59,6 +59,8 @@ namespace Authentication.Server
             //        jwtBearerOptions.SaveToken = true;
             //        jwtBearerOptions.RequireHttpsMetadata = false;
             //    });
+
+            Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

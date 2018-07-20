@@ -109,7 +109,7 @@
                            }
                        },
 
-                       // JavaScript Client (Open Id Connect)
+                       // Native client
                        new Client
                        {
                            ClientId = "native-client-id",
@@ -118,6 +118,42 @@
                            AllowAccessTokensViaBrowser = true,
                            AlwaysSendClientClaims = true,
                            RequireConsent = false,
+
+                           AlwaysIncludeUserClaimsInIdToken = true,
+
+                           RedirectUris =           { "http://native.app" },
+                           PostLogoutRedirectUris = { "http://native.app" },
+                           AllowedCorsOrigins =     { "http://native.app" },
+
+                           AllowedScopes =
+                           {
+                               IdentityServerConstants.StandardScopes.OpenId,
+                               IdentityServerConstants.StandardScopes.Profile,
+                               "api.resource.read",
+                               "api.resource.write"
+                           }
+
+                           //ClientSecrets = new List<Secret>
+                           //                {
+                           //                    new Secret
+                           //                    {
+                           //                        Type = "",
+                           //                        Value = "",
+                           //                        Description = ""
+                           //                    }
+                           //                }
+                       },
+
+                       // Custom Grant Client
+                       new Client
+                       {
+                           ClientId = "jwt-bearer-grant-client",
+                           ClientName = "Native Client",
+                           AllowedGrantTypes = new[] { "urn:ietf:params:oauth:grant-type:jwt-bearer" },
+                           AllowAccessTokensViaBrowser = true,
+                           AlwaysSendClientClaims = true,
+                           RequireConsent = false,
+                           RequireClientSecret = false,
 
                            AlwaysIncludeUserClaimsInIdToken = true,
 

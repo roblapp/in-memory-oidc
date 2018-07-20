@@ -3,9 +3,9 @@ namespace Authentication.Server.Dtos
 {
     using System;
 
-    public class CreateUserCredentialDto
+    public class CreateUserDeviceCredentialDto
     {
-        public UserCredentialJwk Jwk { get; set; }
+        public UserDeviceCredentialJwkDto Jwk { get; set; }
 
         public string UserId { get; set; }
 
@@ -14,12 +14,12 @@ namespace Authentication.Server.Dtos
         public bool IsEnabled { get; set; }
     }
 
-    public class UserCredentialDto : CreateUserCredentialDto
+    public class UserDeviceCredentialDto : CreateUserDeviceCredentialDto
     {
-        public string UserCredentialId { get; set; }
+        public string UserDeviceCredentialId { get; set; }
     }
 
-    public class UserCredentialJwk
+    public class UserDeviceCredentialJwkDto
     {
         public string Kty { get; set; }
         public string Use { get; set; }

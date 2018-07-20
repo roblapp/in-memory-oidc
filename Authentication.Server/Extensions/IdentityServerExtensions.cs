@@ -12,7 +12,8 @@
                 //.AddProfileService<>(),
                 .AddInMemoryIdentityResources(InMemoryResources.GetIdentityResources())
                 .AddInMemoryApiResources(InMemoryResources.GetApiResources())
-                .AddInMemoryClients(InMemoryResources.GetClients());
+                .AddInMemoryClients(InMemoryResources.GetClients())
+                .AddExtensionGrantValidator<RFC7523GrantValidator>();
 
             return identityServerBuilder;
         }

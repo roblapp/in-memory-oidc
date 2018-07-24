@@ -6,8 +6,33 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="5.2.2" />
+    <None Remove="private-rsa.json" />
+    <None Remove="private-rsa.pem" />
+    <None Remove="public-rsa.json" />
+    <None Remove="public-rsa.pem" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="private-rsa.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="private-rsa.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="public-rsa.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="public-rsa.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="IdentityModel" Version="3.8.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="5.2.4" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="5.2.4" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.2.4" />
     <PackageReference Include="System.Net.Http" Version="4.3.3" />
   </ItemGroup>
 

@@ -2,10 +2,14 @@
 namespace Authentication.Server
 {
     using Authentication.Server.Extensions;
+    using Authentication.Server.IdentityServer;
+    using Authentication.Server.Services;
     using Authentication.Server.Services.Login;
     using Authentication.Server.Services.Users;
     using Authentication.Server.Services.ViewServices;
+    using Authentication.Server.Validation;
     using IdentityServer4;
+    using IdentityServer4.Validation;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
@@ -29,11 +33,13 @@ namespace Authentication.Server
         {
             services.AddSingleton<IConfiguration>(this.configuration);
             services.AddSingleton<IUserService>(new UserService());
-            services.AddSingleton<IUserCredentialService>(new UserCredentialService());
             services.AddTransient<ILocalLoginService, LocalLoginService>();
             services.AddTransient<IExternalLoginService, ExternalLoginService>();
             services.AddTransient<IAccountViewService, AccountViewService>();
             services.AddTransient<IConsentViewService, ConsentViewService>();
+            services.AddTransient<IExtensionGrantValidator, RFC7523GrantValidator>();
+            services.AddTransient<IRFC7523RequestParser, RFC7523RequestParser>();
+            services.AddTransient<IUserDeviceCredentialService, UserDeviceCredentialService>();
 
             services.AddMvc().Configure(this.loggerFactory);
 
@@ -55,6 +61,8 @@ namespace Authentication.Server
             //        jwtBearerOptions.SaveToken = true;
             //        jwtBearerOptions.RequireHttpsMetadata = false;
             //    });
+
+            Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

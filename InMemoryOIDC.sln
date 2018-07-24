@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Apis", "Apis", "{C41368D5-3
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authentication.Api", "Authentication.Api\Authentication.Api.csproj", "{6E5FFC4C-4A2A-41A9-9362-81A3070AA6FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Authentication.Clients.Native", "Authentication.Clients.Native\Authentication.Clients.Native.csproj", "{B943CBB7-115D-4A50-9BBB-50FA1D962EDD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authentication.Clients.Native", "Authentication.Clients.Native\Authentication.Clients.Native.csproj", "{B943CBB7-115D-4A50-9BBB-50FA1D962EDD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

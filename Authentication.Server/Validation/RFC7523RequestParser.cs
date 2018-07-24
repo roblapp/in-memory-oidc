@@ -23,7 +23,7 @@ namespace Authentication.Server.Validation
             this.logger = logger;
         }
 
-        public virtual Task<RFC7523RequestModel> ParseAsync(NameValueCollection rawRequest)
+        public Task<RFC7523RequestModel> ParseAsync(NameValueCollection rawRequest)
         {
             var assertion = rawRequest["assertion"];
             if (string.IsNullOrWhiteSpace(assertion))

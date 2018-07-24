@@ -3,6 +3,7 @@ namespace Authentication.Server
 {
     using Authentication.Server.Extensions;
     using Authentication.Server.IdentityServer;
+    using Authentication.Server.Services;
     using Authentication.Server.Services.Login;
     using Authentication.Server.Services.Users;
     using Authentication.Server.Services.ViewServices;
@@ -38,6 +39,7 @@ namespace Authentication.Server
             services.AddTransient<IConsentViewService, ConsentViewService>();
             services.AddTransient<IExtensionGrantValidator, RFC7523GrantValidator>();
             services.AddTransient<IRFC7523RequestParser, RFC7523RequestParser>();
+            services.AddTransient<IUserDeviceCredentialService, UserDeviceCredentialService>();
 
             services.AddMvc().Configure(this.loggerFactory);
 

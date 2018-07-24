@@ -5,45 +5,38 @@ namespace Authentication.Server.IdentityServer
     using System;
     using System.Collections.Generic;
     using System.IdentityModel.Tokens.Jwt;
-    using System.IO;
     using System.Linq;
-    using System.Reflection;
     using System.Security.Claims;
     using System.Security.Cryptography;
     using System.Threading.Tasks;
+    using Authentication.Server.Dtos;
     using Authentication.Server.Models;
+    using Authentication.Server.Services;
     using Authentication.Server.Validation;
     using IdentityServer4.Extensions;
     using IdentityServer4.Validation;
     using Microsoft.Extensions.Logging;
     using Microsoft.IdentityModel.Tokens;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Serialization;
 
     public class RFC7523GrantValidator : IExtensionGrantValidator
     {
         private readonly IRFC7523RequestParser requestParser;
+        private readonly IUserDeviceCredentialService userDeviceCredentialService;
         private readonly ILogger<RFC7523GrantValidator> logger;
-
-        /// <summary>
-        /// Gets the grant type that this validator works with
-        /// </summary>
+        
         public string GrantType { get; } = "urn:ietf:params:oauth:grant-type:jwt-bearer";
-
+        
 
         public RFC7523GrantValidator(
             IRFC7523RequestParser requestParser,
+            IUserDeviceCredentialService userDeviceCredentialService,
             ILogger<RFC7523GrantValidator> logger)
         {
             this.requestParser = requestParser;
+            this.userDeviceCredentialService = userDeviceCredentialService;
             this.logger = logger;
         }
 
-        /// <summary>
-        /// Validates the RFC 7523 grant type. This grant type is used for SCGX native
-        /// </summary>
-        /// <param name="context">The extension grant validation context which contains relevant information from the token endpoint</param>
-        /// <returns>success or fail inside of the context</returns>
         public async Task ValidateAsync(ExtensionGrantValidationContext context)
         {
             this.logger.LogInformation("Validating extension grant_type '{grant}'", this.GrantType);
@@ -62,40 +55,28 @@ namespace Authentication.Server.IdentityServer
             this.logger.LogInformation("Finished validating extension grant_type '{grant}'", this.GrantType);
         }
 
-        protected virtual Task<UserDeviceCredential> GetUserDeviceCredentialByIdAsync(Guid userDeviceCredentialId)
+        public async Task<UserDeviceCredentialDto> GetUserDeviceCredentialByIdAsync(Guid userDeviceCredentialId)
         {
-            //Read from database
-            return Task.FromResult(
-                new UserDeviceCredential
-                {
-                    UserDeviceCredentialId = userDeviceCredentialId,
-                    UserId = new Guid("425b7fba-1bf1-4368-b499-178860fb75f3"),
-                    DeviceId = new Guid("4b09e22b-636f-444e-9241-40aa4cc6b569")
-                });
+            var userDeviceCredential = await this.userDeviceCredentialService.GetSingleOrDefaultAsync(x => x.UserDeviceCredentialId == userDeviceCredentialId);
+
+            return userDeviceCredential;
         }
 
-        protected virtual Task<SigningCredentials> CreateSigningCredentialsAsync(UserDeviceCredential userDeviceCredential)
+        public Task<SigningCredentials> CreateSigningCredentialsAsync(UserDeviceCredentialDto userDeviceCredential)
         {
-            //This logic will convert a UDC to a SigningCredential
-            var path = @"C:\Users\robert.lapp\Desktop\Debugging\Crypto\public-rsa.json";
-            var rawJson = File.ReadAllText(path);
-            //var rsaParameters = new RSAParameters
-            //        {
-            //            Exponent = Encoding.UTF8.GetBytes(userDeviceCredential.Exponent),
-            //            Modulus = Encoding.UTF8.GetBytes(userDeviceCredential.Modulus)
-            //        };
-            var rsaParameters = JsonConvert.DeserializeObject<RSAParameters>(rawJson, new JsonSerializerSettings
-                                                                                      {
-                                                                                          ContractResolver = new RsaKeyContractResolver()
-                                                                                      });
+            var rsaParameters = new RSAParameters
+                                {
+                                    Exponent = Convert.FromBase64String(userDeviceCredential.Exponent),
+                                    Modulus = Convert.FromBase64String(userDeviceCredential.Modulus)
+                                };
             var key = new RsaSecurityKey(rsaParameters) { KeyId = userDeviceCredential.UserDeviceCredentialId.ToString("D") };
             var signingCredentials = new SigningCredentials(key, "RS256");
             return Task.FromResult(signingCredentials);
         }
 
-        protected virtual Task<ClaimsPrincipal> ValidateAssertionAsync(
+        public Task<ClaimsPrincipal> ValidateAssertionAsync(
             RFC7523RequestModel request,
-            UserDeviceCredential userDeviceCredential,
+            UserDeviceCredentialDto userDeviceCredential,
             SigningCredentials signingCredentials)
         {
             var validator = new RFC7523AssertionValidator(userDeviceCredential);
@@ -119,30 +100,17 @@ namespace Authentication.Server.IdentityServer
             return Task.FromResult(result);
         }
     }
-
-    public class UserDeviceCredential
-    {
-        public Guid UserDeviceCredentialId { get; set; }
-
-        public Guid UserId { get; set; }
-
-        public Guid DeviceId { get; set; }
-
-        public string Exponent { get; set; }
-
-        public string Modulus { get; set; }
-    }
-
+    
     internal class RFC7523AssertionValidator
     {
-        private readonly UserDeviceCredential userDeviceCredential;
+        private readonly UserDeviceCredentialDto userDeviceCredential;
 
         static RFC7523AssertionValidator()
         {
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
         }
 
-        internal RFC7523AssertionValidator(UserDeviceCredential userDeviceCredential)
+        internal RFC7523AssertionValidator(UserDeviceCredentialDto userDeviceCredential)
         {
             this.userDeviceCredential = userDeviceCredential;
         }
@@ -199,18 +167,6 @@ namespace Authentication.Server.IdentityServer
         private string GetTokenEndpoint()
         {
             return "http://localhost:5000/connect/token";
-        }
-    }
-
-    internal class RsaKeyContractResolver : DefaultContractResolver
-    {
-        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
-        {
-            var property = base.CreateProperty(member, memberSerialization);
-
-            property.Ignored = false;
-
-            return property;
         }
     }
 }

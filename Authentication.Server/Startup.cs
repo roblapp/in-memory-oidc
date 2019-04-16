@@ -62,7 +62,18 @@ namespace Authentication.Server
             //        jwtBearerOptions.RequireHttpsMetadata = false;
             //    });
 
-            Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
+            //Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
+            services.AddCors(options =>
+            {
+                // this defines a CORS policy called "defaultCorsPolicy"
+                options.AddPolicy("defaultCorsPolicy", policy =>
+                {
+                    policy
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -77,6 +88,7 @@ namespace Authentication.Server
                 app.UseExceptionHandler("Home/Error");
             }
 
+            app.UseCors("defaultCorsPolicy");
             app.UseIdentityServer();
             app.UseStaticFiles();
             app.UseMvcWithDefaultRoute();
